@@ -1,0 +1,89 @@
+#配置worker进行的运行用户 nobody也是linux用户
+#user  nobody;
+#user  root;
+
+#配置工作进程数目，根据硬件调整
+worker_processes  1;
+
+#配置全局错误日志及类型[debug | info | notice | warn | error | crit]默认是error
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#配置进程pid文件
+#pid        logs/nginx.pid;
+
+
+events {
+    #每个worker进程支持最大连接数为1024，上限为65535
+    worker_connections  1024;
+}
+
+
+#配置http服务器，利用它的反向代理功能提供负债均衡支持
+http {
+    #配置nginx支持哪些多媒体类型，可以在conf/mine.type文件中查看支持哪些多媒体类型
+    include       mime.types;
+    
+    #默认文件类型
+    default_type  application/octet-stream;
+    
+    #配置日志格式
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    #配置日志的存放路径
+    #access_log  logs/access.log  main;
+
+    sendfile        on;			 #开启高效文件输出
+    #tcp_nopush     on;		 #防止网络阻塞(一般上线后都开启)
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;	 #长连接超时，单位是秒
+
+    #gzip  on;				 #开启gzip压缩输出(一般上线后都开启)
+    
+
+    #配置虚拟主机
+    server {
+        listen       80;			#监听的端口号
+        server_name  localhost;  #配置服务名
+
+        #charset koi8-r;		#配置字符集
+	#配置本主机的访问日志
+        #access_log  logs/host.access.log  main;
+	
+	#默认的匹配/的请求，当访问路径中有/时会被该location匹配到并进行处理
+        location / {
+	    #root是配置服务器的默认网站根目录位置，默认为nginx安装目录下的html目录
+            root   html;
+	    #配置首页文件的名称
+            index  index.html index.htm;
+        }
+
+	#配置404页面
+        #error_page  404              /404.html; 
+	#配置50x页面
+        # redirect server error pages to the static page /50x.html
+        #error_page   500 502 503 504  /50x.html;
+        
+	#精准匹配
+	location = /50x.html {
+            root   html;
+        }
+    }
+
+
+    #配置另外一台虚拟主机
+    #server {
+    #    listen       8000;
+    #    listen       somename:8080;
+    #    server_name  somename  alias  another.alias;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+}
