@@ -709,7 +709,7 @@ throw new MyException('自定义异常');
 
 - 字符串函数 [文档](https://www.php.net/manual/zh/ref.strings.php)
 - 数组函数 [文档](https://www.php.net/manual/zh/book.array.php)
-- 日期函数 文档
+- 日期函数 [文档](https://www.php.net/manual/zh/ref.datetime.php)
 - 文件函数 [文档](https://www.php.net/manual/zh/ref.filesystem.php)
 
 ### 字符串常用函数
@@ -991,21 +991,782 @@ throw new MyException('自定义异常');
 
 ### 数组常用函数
 
+- `array_key_exists(string|int $key,array $array):bool` 
+
+  检查数组里是否有指定的键名或索引
+
+  ```php
+  $arr = ['one'=>"A", "two"=>"B", "three"=>"C"];
+  
+  echo array_key_exists("one",$arr); // bool(true)
+  echo array_key_exists("abc",$arr); // bool(false)
+  ```
+
+- `array_keys(array $array):array`  
+
+  返回数组中部分的或所有的键名
+
+  ```php
+  $arr = ['one'=>"A", "two"=>"B", "three"=>"C"];
+  
+  print_r(array_keys($arr)); // Array([0]=>one [1]=>two [2]=>three)
+  // 只返回包含此值的key
+  print_r(array_keys($_arr,'B')); // Array([0]=>two)
+  ```
+
+- `array_values(array $array):array`  
+
+  返回数组中所有的值
+
+  ```php
+  $arr = ['a'=>'A','b'=>'B','c'=>'C'];
+  print_r(array_values($arr)); // Array([0]=>A [1]=>B [2]=>C)
+  ```
+
+- `array_merge(array ...$arrays):array` 
+
+  合并多个数组
+
+  > `array_merge` 和 `+` 的区别
+  >
+  > - 若key(非数字)相同 `array_merge`后面的会覆盖前面的 而 `+` 不会覆盖
+  > - `array_merge`数字key将会被重新编号 而 `+` 数字key不会被重新编号
+
+  ```php
+  $_arr1 = [0=>'A',1=>'B','two'=>'C'];
+  $_arr2 = [0=>'D',5=>'E','two'=>'F'];
+  
+  // Array([0]=>A [1]=>B [two]=>F [2]=>D [3]=>E)
+  print_r(array_merge($_arr1,$_arr2));
+  // Array([0]=>A [1]=>B [two]=>C [5=>E)
+  print_r($_arr1 + $_arr2);
+  ```
+
+- `array_pop(array &$array):mixed`
+
+  弹出数组最后一个单元
+
+  ```php
+  $arr3 = ['A','B','C','D','E'];
+  echo array_pop($arr3); // E
+  // Array([0]=>A [1]=>B [2]=>C [3]=>D)
+  print_r($arr3);
+  ```
+
+- `array_push(array &$array, mixed ...$values):int` 
+
+  将一个或多个单元压入数组的末尾
+
+  ```php
+  $arr3 = ['A','B','C'];
+  echo array_push($arr3,'D','E'); // 5 新数组长度
+  print_r($arr3); // Array([0]=>A [1]=>B [2]=>C [3]=>D [4]=>E)
+  ```
+
+- `array_shift(array &$array):mixed` 将数组开头的单元移出数组
+
+- `array_unshift(array &$array, mixed ...$values):int` 在数组开头插入1个或多个单元
+
+  ```php
+  $arr3 = ['A','B','C','D','E'];
+  echo array_shift($arr3); // A
+  // 数字key会被重置 非数字key不会
+  print_r($arr3); // Array([0] =>B [1]=>C [2]=>D [3]=>E)
+  
+  $arr3 = ['A','B','C'];
+  echo array_unshift($arr3,'D','E'); // 5 新数组长度
+  print_r($arr3); // Array([0]=>D [1]=>E [2]=>A [3]=>B [4]=>C)
+  ```
+
+- `array_rand(array $array, int $num = 1):int|string|array` 
+
+  从数组中随机取出1个或多个随机key
+
+  ```php
+  // 随机取出1个key
+  echo array_rand(['A','B','C']);
+  // 随机取出两个key
+  print_r(array_rand(['A','B','C'], 2));
+  ```
+
+- `array_replace(array $array, array ...$replacements):array` 
+
+  使用传递的数组替换第1个数组的元素
+
+  ```php
+  // 只会替换同名的key
+  $arr5 = [0=>'A',2=>'B',4=>'C'];
+  $arr6 = [0=>'D',1=>'E',2=>'F'];
+  // Array([0]=>D [2]=>F [4]=>C [1]=>E)
+  print_r(array_replace($arr5,$arr6));
+  ```
+
+- `array_reverse(array $array, bool $preserve_keys = false):array` 数组反转
+
+  ```php
+  print_r(array_reverse(['A','B','C'])); // Array([0]=>C [1]=>B [2]=>A)
+  // key也反转
+  print_r(array_reverse(['A','B','C'], true)); // Array([2]=>C [1]=>B [0]=>A)
+  ```
+
+- `array_search(mixed $needle, array $haystack, bool $strict = false):int|string|false`
+
+  根据value获取首个key
+
+  ```php
+  echo array_search('B',['A','B','C','B']); // 1
+  // 开启严格匹配 类型必须相同 如果是对象实例必须相同
+  echo array_search('2',[1,2,3,4],true); // bool(false)
+  ```
+
+- `array_slice()` 从数组中取出一段
+
+  ```php
+  array_slice(
+      array $array,
+      int $offset,
+      ?int $length = null,
+      bool $preserve_keys = false
+  ): array
+  ```
+
+  ```php
+  $arr7 = ['A','B','C','D','E'];
+  print_r(array_slice($arr7, 2)); // Array([0]=>C [1]=>D [2]=>E)
+  
+  print_r(array_slice($arr7, 2, 2)); // Array([0]=>C [1]=>D)
+  
+  print_r(array_slice($arr7,-2)); // Array([0]=>D [1]=>E)
+  // 不重置key
+  print_r(array_slice($arr7,-2, 2, true)); // Array([3]=>D [4]=>E)
+  ```
+
+- `array_splice()` 去掉数组中的某一部分并用其它值取代
+
+  ```php
+  array_splice(
+      array &$array,
+      int $offset,
+      ?int $length = null,
+      mixed $replacement = []
+  ): array
+  ```
+
+  ```php
+  $arr8 = ['A','B','C','D','E'];
+  // 删除数组中的元素
+  print_r(array_splice($arr8,3)); // 被删除的元素  Array([0]=>D [1]=>E)
+  print_r($arr8); // 剩下的元素 Array([0]=>A [1]=>B [2]=>C)
+  
+  $arr8 = ['A','B','C','D','E'];
+  print_r(array_splice($_arr8,2,1,['X','Y','Z']));
+  print_r($_arr8); //  Array([0]=>A [1]=>B [2]=>X [3]=>Y [4]=>Z [5]=>D [6]=>E)
+  ```
+
+- `count(Countable|array $value, int $mode=COUNT_NORMAL):int`
+
+  获取数组元素个数
+
+  mode参数为`COUNT_NORMAL`或1将递归对数组计数
+
+  ```php
+  $arr = [1, 2, 3];
+  echo count($arr); // 3
+  
+  $arr = [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9]
+  ];
+  echo count($arr,1); // 12
+  
+  ```
+
+- `in_array(mixed $needle, array $haystack, bool $strict=false):bool`
+
+  判断某个值是否在数组中(区分大小写)
+
+  ```php
+  $arr = ['A', 'B', 'C'];
+  var_dump(in_array('A', $arr)); // bool(true)
+  var_dump(in_array('a', $arr)); // bool(false)
+  // 严格模式
+  var_dump(in_array('1', [1,2,3], true)); // bool(false)
+  
+  ```
+
+- `ksort(array &$array):bool` 对数组根据键名升序排序
+
+- `krsort(array &$array):bool` 对数组按照键名逆向排序
+
+  ```php
+  $arr10 = [2=>'B', 0=>'A', '3'=>'C'];
+  
+  ksort($arr10);
+  print_r($arr10); // Array([0]=>A [2]=>B [3]=>C)
+  
+  krsort($arr10);
+  print_r($arr10); // Array([3]=>C [2]=>B [0]=>A)
+  ```
+
+- `sort(array &$array):bool` 根据value对数组升序排序
+
+- `rsort(array &$array):bool` 根据value对数组降序排序
+
+  ```php
+  $arr11 = ['A','D','C','B','E'];
+  sort($arr11);
+  // Array([0]=>A [1]=>B [2]=>C [3]=>D [4]=>E)
+  print_r($arr11);
+  
+  $arr11 = ['A','D','C','B','E'];
+  rsort($arr11);
+  // Array([0]=>E [1]=>D [2]=>C [3]=>B [4]=>A)
+  print_r($arr11);
+  
+  ```
+
+- `list(mixed ...$vars):array` 把数组中的值赋给一组变量
+
+  ```php
+  list($a,$b,$c) = ['A','B','C','D'];
+  echo $a; // A
+  echo $b; // B
+  echo $c; // C
+  
+  // 嵌套list
+  list($_a,list($_b,$_c)) = [1,[2,3]];
+  echo $_a; // 1
+  echo $_b; // 2
+  echo $_c; // 3
+  
+  ```
+
+- `shuffle(array &$array):bool` 打乱数组
+
+  ```php
+  $_arr11 = ['A','B','C','D','E'];
+  shuffle($_arr11);
+  print_r($_arr11);
+  ```
+
+### 日期常用函数
+
+- `date_default_timezone_set(string $timezoneId):bool` 
+
+  设置默认时区
+
+  ```php
+  date_default_timezone_set('UTC');
+  ```
+
+- `date(string $format, ?int $timestamp = null):string` 
+
+  格式化 Unix 时间戳
+
+  ```php
+  echo date('l'); // Friday
+  echo date('D'); // Fri
+  echo date('Y-m-d h:i:s'); // 2023-01-06 01:12:10
+  ```
+
+- `mktime(时,分,秒,月,日,年):int|false` 
+
+  取得指定日期的 Unix 时间戳
+
+  ```php
+  $tomorrow  = date('Y-m-d',
+      mktime(0, 0, 0, date("m"), date("d")+1, date("Y"))
+  );
+  echo $tomorrow;
+  ```
+
+- `time():int` 返回当前的 Unix 时间戳(秒数)
+
+  ```php
+  echo time(); // 1672968382
+  echo date('Y-m-d', time()); // 2023-01-06
+  ```
+
+- `strtotime(string $datetime, ?int $baseTimestamp = null):int|false`
+
+  将任何英文文本日期时间描述解析为 Unix 时间戳
+
+  ```php
+  echo date('Y-m-d', strtotime('now')); // 2023-01-06
+  echo date('Y-m-d', strtotime('yesterday')); // 2023-01-05
+  echo date('Y-m-d', strtotime('+1 day')); // 2023-01-07
+  echo date('Y-m-d', strtotime('+1 year')); // 2024-01-06
+  echo date('Y-m-d', strtotime('next Monday')); // 2023-01-09
+  echo date('Y-m-d', strtotime('last Monday')); // 2023-01-02
+  ```
+
+### 文件常用函数
+
+- `basename(string $path, string $suffix = "")` 
+
+  返回路径中的文件名部分
+
+  ```php
+  echo basename("/usr/software/hello.text"); // hello.text
+  echo basename("/usr/software/hello.text", '.text'); // hello
+  ```
+
+- `chmod(string $filename, int $permissions):bool` 
+
+  改变文件权限
+
+  ```php
+  # 文件不存在则警告 $permissions需要使用八进制数
+  chmod("/usr/images/qrcode.jpg",0777);
+  chmod("/usr/images/qrcode.jpg",0666);
+  ```
+
+- `chown(string $filename, string|int $user):bool` 
+
+  修改文件所有者(需要有root权限)
+
+  ```php
+  chown("/usr/images/qrcode.jpg",'root');
+  ```
+
+- `copy(string $from,string $to,?resource $context = null):bool` 
+
+  文件拷贝
+
+  ```php
+  copy('/usr/images/qrcode.jpg','/usr/images/2022/qrcode.jpg');
+  ```
+
+- rename(string $from,string $to,?resource $context = null):bool 
+
+  重命名文件或文件移动
+
+  ```php
+  rename('/usr/images/qrcode.jpg','/usr/images/2022/qrcode.jpg');
+  ```
+
+- `unlink(string $filename,?resource $context = null):bool` 
+
+  删除文件
+
+  ```php
+  unlink('/usr/images/hello.text');
+  ```
+
+- `dirname(string $path,int $levels = 1):string` 
+
+  返回路径中的目录部分
+
+  ```php
+  echo dirname('/usr/images/hello.text'); // /usr/images
+  ```
+
+- `fopen()` 打开文件或者 URL
+
+  ```php
+  fopen(
+      string $filename,
+      string $mode,
+      bool $use_include_path = false,
+      ?resource $context = null
+  ): resource|false
+  ```
+
+  mode
+
+  - r  只读   r+ 读写 (指针指向文件头)
+  - w 写入 w+ 读写(指针指向文件头并将文件大小截为零)
+  - a  写入  a+ 读写(指针指向文件末尾)
+  - x 创建并写入  x+ 创建并读写
+
+  ```php
+  $_resource = fopen('/usr/images/hello.text','r');
+  echo var_dump($_resource);
+  ```
+
+- `fclose(resource $stream):bool` 
+
+  关闭一个已打开的文件指针
+
+  ```php
+  fclose($_resource);
+  ```
+
+- `feof(resource $stream):bool` 
+
+  测试文件指针是否到了文件结束的位置
+
+  ```php
+  echo var_dump(feof($_resource)); // bool(false)
+  ```
+
+- `fgetc(resource $stream):string|false` 
+
+  从文件指针中读取字符
+
+  
+
+  ```php
+  // 打开文件
+  $_resource = fopen('/usr/images/hello.text','r');
+  // 如果指针没到结束位置就一直读
+  while (false !== ($char = fgetc($_resource))){
+      echo $char;
+  }
+  // 关闭文件
+  fclose($_resource);
+  ```
+
+- `fgets(resource $stream,?int $length = null):string|false`
+
+  从文件指针中读取字符
+
+  ```php
+  $_resource = fopen('/usr/images/hello.text','r');
+  
+  while (false !== ($char = fgets($_resource))){
+      echo $char;
+  }
+  fclose($_resource);
+  ```
+
+- `file_exists(string $filename):bool` 
+
+  检查文件或目录是否存在
+
+  ```php
+  var_dump(file_exists('/usr/images/hello.text')); # bool(true)
+  var_dump(file_exists('/usr/images/hello.txt')); # bool(false)
+  ```
+
+- `file_get_contents(string $filename):string` 
+
+  将整个文件读入一个字符串
+
+  ```php
+  echo file_get_contents('/usr/images/hello.text');
+  ```
+
+- `file_put_contents()` 
+
+  将数据写入文件
+
+  ```php
+  file_put_contents(
+      string $filename,
+      mixed $data,
+      int $flags = 0,
+      ?resource $context = null
+  ): int|false
+  ```
+
+  ```php
+  // 默认会覆盖 若文件不存在 会自动创建文件
+  file_put_contents('/usr/images/hello.text', 'hello');
+  // 追加数据
+  file_put_contents('/usr/images/hello.text', '你好世界',FILE_APPEND);
+  ```
+
+- `filesize(string $filename):int|false` 
+
+  取得文件大小(字节)
+
+  ```php
+  echo filesize('/usr/images/hello.text');
+  ```
+
+- `fwrite(resource $stream,string $data,?int $length = null):int|false` 写入文件
+
+- `fputs(...)` fwrite的别名
+
+  ```php
+  $fileUrl = '/usr/images/hello.txt';
+  // 判断文件是否可写
+  if (is_writable($fileUrl)){
+      // 使用追加模式打开
+      if ($stream = fopen($fileUrl, 'a')){
+          fwrite($stream, '你好');
+          echo file_get_contents($fileUrl);
+      }
+  }
+  ```
+
+- `fread(resource $stream,int $length):string|false` 
+
+  读取文件
+
+  $length 最多读取 length 个字节
+
+  ```php
+  echo fread(fopen('/usr/images/hello.txt','r'),20);
+  ```
+
+- `is_dir(string $filename):bool` 
+
+  判断是否是目录
+
+  ```php
+  if (is_dir('/usr/images')){
+      echo '/usr/images 是目录';
+  }
+  ```
+
+- `is_executable(string $filename):bool` 
+
+  判断文件是否可以执行
+
+  ```php
+  if (is_executable('/usr/images/hello.txt')){
+      echo '/usr/images/hello.txt 可以执行';
+  }else {
+      echo '/usr/images/hello.txt 不能执行';
+  }
+  ```
+
+- `is_file(string $filename):bool` 是否是文件
+
+- `is_readable(string $filename):bool` 是否可读
+
+- `is_writable(string $filename):bool` 是否可写
+
+- `is_writeable` is_writable的别名
+
+- `mkdir()` 创建目录
+
+  ```php
+  mkdir(
+      string $directory,
+      int $permissions = 0777,
+      bool $recursive = false,
+      ?resource $context = null
+  ): bool
+  ```
+
+  ```php
+  mkdir('/usr/images/2023');
+  // 创建目录并指定权限
+  mkdir('/usr/images/2024', 0777);
+  // 递归创建
+  mkdir('/usr/images/2025', 0777,true);
+  ```
+
+- `pathinfo(string $path): array|string` 
+
+  返回文件路径的信息
+
+  ```php
+  // Array([dirname]=>/usr/images [basename]=>hello.txt [extension]=>txt [filename]=>hello)
+  print_r(pathinfo('/usr/images/hello.txt'));
+  ```
+
+- `realpath(string $path): string|false` 
+
+  返回绝对路径
+
+  ```php
+  // /home/kz/PhpstormProjects/HelloWorld/fileFunc.php
+  echo realpath('./fileFunc.php');
+  ```
+
+- `rmdir(string $directory):bool` 
+
+  删除空目录
+
+  ```php
+  // 非空目录无法删除
+  rmdir('/usr/images/2026');
+  ```
+
+## 连接数据库
+
+> 1.安装`mysql`扩展
+>
+> 2.开启`pdo`配置
+
+<h6>连接相关设置</h6>
+`PDO::ATTR_ERRMODE`(错误处理模式)
+
+- `PDO::ERRMODE_SILENT` 不报错
+- `PDO::ERRMODE_WARNING` 警告
+- `PDO::ERRMODE_EXCEPTION` 报出异常(推荐)
+
+`PDO::ATTR_AUTOCOMMIT`
+
+- 0 关闭自动提交
+- 1 开启自动提交
+
+`PDO::ATTR_DEFAULT_FETCH_MODE`(返回结果集格式)
+
+- `PDO::FETCH_ASSOC` 关联数组
+- `PDO::FETCH_NUM` 索引数组
+- `PDO::FETCH_BOTH`
+- `PDO::FETCH_OBJ` 对象格式
+
+`ATTR_PERSISTENT`
+
+- 0 关闭持久化连接
+- 1 开启持久化连接
+
+```php
+<?php
+
+    $dns = 'mysql:dbname=edu_soho;host:127.0.0.1';
+    $username = 'root';
+    $password = 'root';
+
+    try {
+        # 创建PDO对象
+        $pdo = new PDO($dns, $username, $password);
+        # 设置参数
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        # $pdo->setAttribute(PDO::ATTR_PERSISTENT, true);
+        # $pdo->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
+        # $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        # 执行语句
+        # exec 执行有影响行数的语句
+        $sql = "insert into user value('2','user','user')";
+        $affectedCount = $pdo->exec($sql);
+        # query 执行有结果集的语句
+        $sql = "select * from user";
+        $statement = $pdo->query($sql);
+        foreach ($statement as $row){
+            echo "{$row['id']}--{$row['username']}--{$row['password']}";
+        }
+
+        # 关闭连接
+        $statement = null;
+        $pdo = null;
+    }catch (PDOException $e){
+        echo $e->getMessage();
+    }
+```
+
+<h6>PDO预处理对象</h6>
+
+```php
+<?php
+
+    $dns = 'mysql:dbname=edu_soho;host:127.0.0.1';
+    $user = 'root';
+    $pass = 'root';
+
+    try{
+        $pdo = new PDO($dns,$user,$pass);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sql = "insert into user value (?, ?, ?)";
+        # 获取PDO预处理对象user
+        $statement = $pdo->prepare($sql);
+        # 绑定变量
+        $statement->bindParam(1, $id);
+        $statement->bindParam(2, $username);
+        $statement->bindParam(3, $password);
+        # 给变量赋值
+        $id = '5';
+        $username = 'andy';
+        $password = 'andy';
+        # 执行语句
+        # 返回值为bool
+        # $statement->execute();
+        # 自动根据顺序赋值给占位符
+        # $statement->execute(array("6","bob","bob"));
+
+        $sql = "insert into user value (:id, :username, :password)";
+        $state = $pdo->prepare($sql);
+        /*
+        $state->bindParam(":password",$password);
+        $state->bindParam(":username",$username);
+        $state->bindParam(":id",$id);
+        $id = '10';
+        $username = 'lucy';
+        $password = 'lucy';
+        $state->execute();
+        */
+        # 相当于上面的代码
+        # $state->execute(array("id"=>"13", "password"=>"jack", "username"=>"jack"));
+
+        $sql = "select * from user";
+        $query_state = $pdo->prepare($sql);
+        $query_state->execute();
+        # fetch() 只获取第1个
+        # $user = $query_state->fetch();
+        # fetchAll() 获取全部
+        # $users = $query_state->fetchAll();
+        # print_r($users);
+        # mode默认为PDO::FETCH_BOTH
+        # $users = $query_state->fetchAll(PDO::FETCH_ASSOC);
+        # print_r($users);
+
+        $query_state->bindColumn('id',$result_id);
+        $query_state->bindColumn('username',$result_username);
+        $query_state->bindColumn('password',$result_password);
+
+        # $query_state->fetch(PDO::FETCH_ASSOC);
+        # echo "{$result_id}--{$result_username}--{$result_password}";
+
+        # 使用fetchAll只能获取最后1条数据 那如何获取多条数据？
+        # $query_state->fetchAll(PDO::FETCH_ASSOC);
+        # echo "{$result_id}--{$result_username}--{$result_password}";
+        # 那如何获取多条数据？
+        while ($query_state->fetch(PDO::FETCH_ASSOC)){
+            echo "{$result_id}--{$result_username}--{$result_password}", PHP_EOL;
+        }
+        
+    }catch(PDOException $e){
+        echo $e->getLine();
+        echo $e->getMessage();
+    }
+```
+
+<h6>事务</h6>
+
+```php
+<?php
+    
+    $dns = 'mysql:dbname=edu_soho;host:127.0.0.1';
+    $user = 'root';
+    $pass = 'root';
+
+    try {
+        $pdo = new PDO($dns, $user, $pass);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        # 关闭事务自动提交
+        $pdo->setAttribute(PDO::ATTR_AUTOCOMMIT,0);
+        # 开启事务
+        $pdo->beginTransaction();
+
+        $sql_1 = "update user set money = money-10 where username = 'root'";
+        $affectedRow = $pdo->exec($sql_1);
+        if (!$affectedRow){
+            throw new PDOException("转出失败");
+        }
+        $sql_2 = "update user set money = money+10 where username = 'user'";
+        $affectedRow = $pdo->exec($sql_2);
+        if (!$affectedRow){
+            throw new PDOException("转入失败");
+        }
+        # 交易成功 提交事务
+        $pdo->commit();
+        echo "交易成功";
+    }catch (PDOException $e){
+        echo $e->getMessage();
+        # 交易失败 回滚事务
+        $pdo->rollBack();
+    }
+
+    # 最后开启事务自动提交
+    $pdo->setAttribute(PDO::ATTR_AUTOCOMMIT,1);
+```
+
 
 
 ## 命名空间
 
 
 
-## 连接数据库
-
-
-
 ## 包管理
-
-
-
-## 单元测试
 
 
 
