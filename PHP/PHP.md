@@ -1768,6 +1768,123 @@ throw new MyException('自定义异常');
 
 ## 包管理
 
+> Composer[教程](https://docs.phpcomposer.com/00-intro.html)
+>
+> Composer[主要资源库]( https://packagist.org/)
 
+<h6>全局安装</h6>
+
+```shell
+curl -sS https://getcomposer.org/installer | php
+```
+
+```shell
+mv composer.phar /usr/local/bin/composer
+```
+
+使用Composer
+
+```shell
+composer install
+```
+
+更新lock文件
+
+```shell
+composer update
+```
+
+
+<h6>项目安装</h6>
+
+```shell
+curl -sS https://getcomposer.org/installer | php
+```
+
+使用Composer
+
+```shell
+php composer.phar install
+```
+
+更新lock文件
+
+```shell
+php composer.phar update
+```
 
 ## 框架
+
+### Twig
+
+.........
+
+### Symfony
+
+> `Symfony`简介
+>
+> `Symfony`是一组`PHP`组件 是Web应用程序框架
+>
+> 本文档`Symfony`版本3.4 `PHP`版本7.2
+
+
+
+<h6>创建Symfony应用</h6>
+
+1.安装Composer
+
+2.在终端使用下面命令
+
+```shell
+composer create-project symfony/framework-standard-edition my_project_name
+```
+
+```shell
+# 创建指定版本
+composer create-project symfony/framework-standard-edition my_project_name "2.8.*"
+```
+
+运行`Symfony`应用
+
+1.进入项目目录
+
+2.启动项目
+
+```shell
+php bin/console server:run
+```
+
+
+
+<h6>创建页面</h6>
+
+- 创建路由
+
+- 创建控制器
+
+  在`src/AppBundle/Controller`下创建`LuckyController.php`
+
+```php
+<?php
+namespace AppBundle\Controller;
+
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+class LuckyController
+{
+    /**
+     * @Route("/lucky/number")
+     */
+    public function numberAction()
+    {
+        $number = random_int(0, 100);
+
+        return new Response('<html><body>Lucky number: '.$number.'</body></html>');
+        
+        # 返回twig模板
+        # return $this->render('lucky/number.html.twig',['number'=>$number]);
+    }
+}
+```
+
